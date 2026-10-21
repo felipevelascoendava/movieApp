@@ -1,53 +1,18 @@
-<!DOCTYPE html>
-<html lang="en">
+﻿<!doctype html>
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Movie Explorer</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 40px; background-color: #f4f6f8; }
-        .container { max-width: 600px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        select, button { padding: 8px 12px; font-size: 14px; margin-right: 10px; }
-        ul { list-style-type: none; padding: 0; margin-top: 20px; }
-        li { background: #eef2f5; margin: 5px 0; padding: 10px; border-radius: 4px; }
-    </style>
-</head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>VERTICE | Cine</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#111;color:#fff;font:16px Arial,sans-serif}.top{height:65px;padding:0 5%;display:flex;align-items:center;gap:35px;background:#090909;position:sticky;top:0;z-index:2}.logo{font-size:27px;font-weight:900;letter-spacing:2px;color:#e50914}.nav{display:flex;gap:20px}.nav a{color:#eee;text-decoration:none}.hero{min-height:390px;padding:70px 8%;display:flex;align-items:center;background:radial-gradient(ellipse at 75% 40%,#8e3528,#301a17 32%,#111 70%)}.hero>div{max-width:620px}.eyebrow{color:#ffb4a5;text-transform:uppercase;letter-spacing:3px;font-size:12px}h1{font-size:clamp(40px,6vw,70px);line-height:1;margin:14px 0}.hero p{line-height:1.6;color:#ddd}.btn{border:0;border-radius:4px;padding:12px 17px;font-weight:bold;cursor:pointer}.red{background:#e50914;color:white}.gray{background:#555;color:white}.main{padding:22px 5% 60px}.filter{margin-bottom:25px;color:#bbb}.filter select{padding:9px;background:#222;color:#fff;border:1px solid #555;border-radius:4px}.section{margin:25px 0 36px}.heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:13px}h2{font-size:21px;margin:0}.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:14px}.card{min-height:230px;border-radius:5px;padding:15px;display:flex;align-items:flex-end;background:linear-gradient(150deg,var(--c),#28201f 55%,#090909);box-shadow:inset 0 -100px 70px -40px #000;transition:.2s}.card:hover{transform:scale(1.04)}.card h3{margin:7px 0}.card small{color:#ffb1b1;text-transform:uppercase;letter-spacing:1px}.card p{margin:0;color:#ccc;font-size:13px}.ai{display:none;padding:18px;margin:20px 0;background:#211718;border-left:4px solid #e50914;line-height:1.6}.ai.show{display:block}.status{color:#aaa;font-size:13px}@media(max-width:600px){.top{gap:15px}.nav{gap:10px;font-size:13px}.hero{min-height:360px}.cards{grid-template-columns:repeat(2,minmax(0,1fr))}.card{min-height:190px}}
+</style></head>
 <body>
-    <div class="container">
-        <h2>🎬 Movie Category Explorer</h2>
-        <select id="categorySelect">
-            <option value="">All Categories</option>
-            <option value="drama">Drama</option>
-            <option value="comedy">Comedy</option>
-            <option value="thriller">Thriller</option>
-        </select>
-        <button onclick="fetchMovies()">Filter Movies</button>
-
-        <ul id="movieList"></ul>
-    </div>
-
-    <script>
-        async function fetchMovies() {
-            const category = document.getElementById('categorySelect').value;
-            const response = await fetch(`/api/movies?category=${encodeURIComponent(category)}`);
-            const data = await response.json();
-
-            const list = document.getElementById('movieList');
-            list.innerHTML = '';
-
-            if (!data.movies || data.movies.length === 0) {
-                list.innerHTML = '<li>No movies found.</li>';
-                return;
-            }
-
-            data.movies.forEach(movie => {
-                const li = document.createElement('li');
-                li.textContent = `${movie.title} (${movie.year}) - [${movie.category.toUpperCase()}]`;
-                list.appendChild(li);
-            });
-        }
-
-        // Initial load
-        fetchMovies();
-    </script>
-</body>
-</html>
+<header class="top"><span class="logo">VERTICE</span><nav class="nav"><a href="#inicio">Inicio</a><a href="#catalogo">Peliculas</a></nav></header>
+<section class="hero" id="inicio"><div><span class="eyebrow">Tu proxima pelicula esta aqui</span><h1>Historias para cada estado de animo.</h1><p>Explora el catalogo y deja que la IA te ayude a elegir que ver.</p><button class="btn red" id="recommend">✦ Recomiendame algo</button> <a class="btn gray" href="#catalogo" style="text-decoration:none">Ver catalogo</a></div></section>
+<main class="main" id="catalogo"><div class="filter">Categoria: <select id="category"><option value="">Todas</option><option value="drama">Drama</option><option value="comedy">Comedia</option><option value="thriller">Suspenso</option></select> <span class="status" id="status"></span></div><div class="ai" id="ai" aria-live="polite"><strong>✦ Seleccion inteligente</strong><p id="answer"></p></div><div id="rows"></div></main>
+<script>
+const categories=[{id:'drama',name:'Dramas que dejan huella',color:'#78372e'},{id:'comedy',name:'Comedias para disfrutar',color:'#765327'},{id:'thriller',name:'Suspenso hasta el final',color:'#344752'}];
+const select=document.getElementById('category'),rows=document.getElementById('rows'),status=document.getElementById('status');
+async function load(){rows.replaceChildren();status.textContent='Cargando...';try{const res=await fetch('/api/movies?category='+encodeURIComponent(select.value));if(!res.ok)throw Error('No se pudo cargar el catalogo.');const data=await res.json(),movies=data.movies||[];categories.filter(c=>!select.value||c.id===select.value).forEach(c=>{const section=document.createElement('section');section.className='section';const head=document.createElement('div');head.className='heading';const title=document.createElement('h2');title.textContent=c.name;const button=document.createElement('button');button.className='btn gray';button.textContent='✦ Resumen con IA';button.onclick=()=>summary(c.id);head.append(title,button);const cards=document.createElement('div');cards.className='cards';movies.filter(m=>m.category===c.id).forEach(m=>{const card=document.createElement('article');card.className='card';card.style.setProperty('--c',c.color);const content=document.createElement('div'),tag=document.createElement('small'),name=document.createElement('h3'),year=document.createElement('p');tag.textContent=c.id;name.textContent=m.title;year.textContent=m.year||'Ano no disponible';content.append(tag,name,year);card.append(content);cards.append(card)});if(!cards.children.length)cards.textContent='No hay peliculas en esta categoria.';section.append(head,cards);rows.append(section)});status.textContent=movies.length+' peliculas'}catch(e){status.textContent=e.message}}
+async function summary(category){const panel=document.getElementById('ai'),answer=document.getElementById('answer');panel.classList.add('show');answer.textContent='La IA esta preparando la seleccion...';panel.scrollIntoView({behavior:'smooth',block:'center'});try{const res=await fetch('/api/movies/summary?category='+encodeURIComponent(category)),data=await res.json();if(!res.ok)throw Error(data.error||'Fallo el resumen');answer.textContent=data.summary}catch(e){answer.textContent=e.message+' Verifica Ollama y el backend.'}}
+select.onchange=load;document.getElementById('recommend').onclick=()=>summary(select.value||categories[Math.floor(Math.random()*categories.length)].id);load();
+</script></body></html>
