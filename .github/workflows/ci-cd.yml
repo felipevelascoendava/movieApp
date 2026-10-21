@@ -117,9 +117,11 @@ jobs:
         run: |
           docker compose pull backend frontend
           docker compose build proxy
+          docker compose up -d --no-build --wait db ollama
+          docker compose run --rm --no-deps db-seed
+          docker compose run --rm --no-deps ollama-model
           docker compose up -d --no-build --no-deps --wait --scale backend=2 backend
           docker compose up -d --no-build --no-deps --wait --scale frontend=2 frontend
-          docker compose up -d --no-build --wait db db-seed ollama ollama-model
           if ! docker compose up -d --no-build --no-deps --wait proxy; then
             docker compose ps -a
             docker compose logs --no-color --tail=100 proxy
