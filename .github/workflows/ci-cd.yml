@@ -119,5 +119,5 @@ jobs:
           docker compose build proxy
           docker compose up -d --no-build --no-deps --wait --scale backend=2 backend
           docker compose up -d --no-build --no-deps --wait --scale frontend=2 frontend
-          docker compose up -d --no-build --wait proxy db db-seed ollama ollama-model sonarqube
+          docker compose up -d --no-build --wait proxy db db-seed ollama ollama-model
           docker compose ps
