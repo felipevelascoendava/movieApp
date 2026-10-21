@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Movie Explorer</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background-color: #f4f6f8; }
+        .container { max-width: 600px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        select, button { padding: 8px 12px; font-size: 14px; margin-right: 10px; }
+        ul { list-style-type: none; padding: 0; margin-top: 20px; }
+        li { background: #eef2f5; margin: 5px 0; padding: 10px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>🎬 Movie Category Explorer</h2>
+        <select id="categorySelect">
+            <option value="">All Categories</option>
+            <option value="drama">Drama</option>
+            <option value="comedy">Comedy</option>
+            <option value="thriller">Thriller</option>
+        </select>
+        <button onclick="fetchMovies()">Filter Movies</button>
+
+        <ul id="movieList"></ul>
+    </div>
+
+    <script>
+        async function fetchMovies() {
+            const category = document.getElementById('categorySelect').value;
+            const response = await fetch(`/api/movies?category=${encodeURIComponent(category)}`);
+            const data = await response.json();
+
+            const list = document.getElementById('movieList');
+            list.innerHTML = '';
+
+            if (!data.movies || data.movies.length === 0) {
+                list.innerHTML = '<li>No movies found.</li>';
+                return;
+            }
+
+            data.movies.forEach(movie => {
+                const li = document.createElement('li');
+                li.textContent = `${movie.title} (${movie.year}) - [${movie.category.toUpperCase()}]`;
+                list.appendChild(li);
+            });
+        }
+
+        // Initial load
+        fetchMovies();
+    </script>
+</body>
+</html>

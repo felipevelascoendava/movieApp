@@ -1,0 +1,8 @@
+[
+  { "title": "The Shawshank Redemption", "category": "drama", "year": 1994 },
+  { "title": "The Dark Knight", "category": "thriller", "year": 2008 },
+  { "title": "Superbad", "category": "comedy", "year": 2007 },
+  { "title": "Pulp Fiction", "category": "drama", "year": 1994 },
+  { "title": "The Hangover", "category": "comedy", "year": 2009 },
+  { "title": "Se7en", "category": "thriller", "year": 1995 }
+]

@@ -1,0 +1,132 @@
+services:
+  db:
+    image: mongo:6.0
+    restart: unless-stopped
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test:
+        - CMD
+        - mongosh
+        - --quiet
+        - mongodb://localhost:27017/movies_db
+        - --eval
+        - "quit(db.runCommand({ ping: 1 }).ok ? 0 : 1)"
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  db-seed:
+    image: mongo:6.0
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./mongo/init.json:/seed/init.json:ro
+    command:
+      - mongoimport
+      - --host=db
+      - --db=movies_db
+      - --collection=movies
+      - --file=/seed/init.json
+      - --jsonArray
+      - --mode=upsert
+      - --upsertFields=title
+    restart: "no"
+
+  backend:
+    image: ${DOCKERHUB_USERNAME:?Set DOCKERHUB_USERNAME in .env}/movie-app-backend:${APP_VERSION:-latest}
+    build:
+      context: ./backend
+      args:
+        APP_VERSION: ${APP_VERSION:-dev}
+    environment:
+      MONGO_URI: mongodb://db:27017/movies_db
+      OLLAMA_URL: http://ollama:11434
+    depends_on:
+      db-seed:
+        condition: service_completed_successfully
+      ollama-model:
+        condition: service_completed_successfully
+      ollama:
+        condition: service_started 
+    restart: unless-stopped
+    deploy:
+      replicas: 2
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/health')"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+
+  frontend:
+    image: ${DOCKERHUB_USERNAME:?Set DOCKERHUB_USERNAME in .env}/movie-app-frontend:${APP_VERSION:-latest}
+    build:
+      context: ./frontend
+    restart: unless-stopped
+    deploy:
+      replicas: 2
+
+  sonarqube:
+    image: sonarqube:community
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+    volumes:
+      - sonar_data:/opt/sonarqube/data
+      - sonar_extensions:/opt/sonarqube/extensions
+      - sonar_logs:/opt/sonarqube/logs
+
+  proxy:
+    image: movie-app-proxy:${APP_VERSION:-latest}
+    build:
+      context: ./nginx
+    depends_on:
+      - frontend
+      - backend
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+
+  scanner:
+    image: sonarsource/sonar-scanner-cli
+    profiles:
+      - analysis
+    working_dir: /usr/src
+    environment:
+      SONAR_HOST_URL: http://sonarqube:9000
+      SONAR_TOKEN: ${SONAR_TOKEN:-}
+    volumes:
+      - .:/usr/src
+    depends_on:
+      - sonarqube
+
+  ollama:
+    image: ollama/ollama
+    volumes:
+      - ollama_data:/root/.ollama
+    restart: unless-stopped
+
+  ollama-model:
+    image: ollama/ollama
+    depends_on:
+      - ollama
+    environment:
+      OLLAMA_HOST: http://ollama:11434
+    volumes:
+      - ollama_data:/root/.ollama
+    entrypoint: ["/bin/sh", "-c"]
+    command: ["until ollama pull qwen2.5:0.5b; do sleep 2; done"]
+    restart: "no"
+
+volumes:
+  mongo_data:
+  ollama_data:
+  sonar_data:
+    name: sonarqube_data
+  sonar_extensions:
+    name: sonarqube_extensions
+  sonar_logs:
+    name: sonarqube_logs
