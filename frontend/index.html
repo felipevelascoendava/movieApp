@@ -7,7 +7,7 @@
 </style></head>
 <body>
 <header class="top"><span class="logo">VERTICE</span><nav class="nav"><a href="#inicio">Inicio</a><a href="#catalogo">Peliculas</a></nav></header>
-<section class="hero" id="inicio"><div><span class="eyebrow">Tu proxima pelicula esta aqui</span><h1>Historias para cada estado de animo.</h1><p>Explora el catalogo y deja que la IA te ayude a elegir que ver.</p><button class="btn red" id="recommend">✦ Recomiendame algo</button> <a class="btn gray" href="#catalogo" style="text-decoration:none">Ver catalogo</a></div></section>
+<section class="hero" id="inicio"><div><span class="eyebrow">Tu proxima pelicula esta aqui</span><h1>Movie App</h1><p>Explora el catalogo y deja que la IA te ayude a elegir que ver.</p> <a class="btn gray" href="#catalogo" style="text-decoration:none">Ver catalogo</a></div></section>
 <main class="main" id="catalogo"><div class="filter">Categoria: <select id="category"><option value="">Todas</option><option value="drama">Drama</option><option value="comedy">Comedia</option><option value="thriller">Suspenso</option></select> <span class="status" id="status"></span></div><div class="ai" id="ai" aria-live="polite"><strong>✦ Seleccion inteligente</strong><p id="answer"></p></div><div id="rows"></div></main>
 <script>
 const categories=[{id:'drama',name:'Dramas que dejan huella',color:'#78372e'},{id:'comedy',name:'Comedias para disfrutar',color:'#765327'},{id:'thriller',name:'Suspenso hasta el final',color:'#344752'}];
