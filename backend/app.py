@@ -52,7 +52,7 @@ def summarize_movies():
 
     prompt = (
         f"Give a short overview of these {category or 'movie'} titles. "
-        "Only use the titles and years provided. Do not invent plot details.\n"
+        "Only use the titles and years provided. Do not invent plot details.\n Recommend similar movies"
         f"{movie_list}"
     )
 
