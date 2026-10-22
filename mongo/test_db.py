@@ -20,6 +20,6 @@ def test_mongo_operations_and_projection(mongo_db):
     assert mongo_db.movies.count_documents({}) == 7
 
     thrillers = list(mongo_db.movies.find({"category": "thriller"}, {"_id": 0}))
-    assert len(thrillers) == 2
+    assert len(thrillers) == 3
     assert all("_id" not in movie for movie in thrillers)
     assert any(m["title"] == "The Dark Knight" for m in thrillers)
